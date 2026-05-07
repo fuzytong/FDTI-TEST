@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDTI · 设计型格</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #222222;
+    --accent: #e8e0d0;
+    --accent-dim: #6b6560;
+    --text: #d4cfc8;
+    --text-dim: #4a4540;
+    --highlight: #c8b89a;
+    --white: #f0ebe3;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(200,184,154,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,184,154,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  #intro {
+    min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 0;
+  }
+  #intro.active { display: flex; }
+
+  .intro-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .intro-title {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 300;
+    line-height: 1.3;
+    color: var(--white);
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .intro-title.fdti-title {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(56px, 9vw, 96px);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--highlight);
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+
+  .intro-subtitle-en {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(13px, 1.6vw, 16px);
+    letter-spacing: 0.25em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .intro-subtitle-zh {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-size: clamp(20px, 2.8vw, 28px);
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--white);
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .intro-subtitle-zh span {
+    color: var(--highlight);
+  }
+
+  .intro-title span {
+    color: var(--highlight);
+  }
+
+  .intro-desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--accent-dim);
+    max-width: 500px;
+    margin-bottom: 64px;
+  }
+
+  .intro-meta {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 64px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .meta-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 24px;
+    color: var(--white);
+  }
+
+  .meta-label {
+    font-size: 11px;
+    color: var(--accent-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 16px 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-start::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--highlight);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+
+  .btn-start:hover {
+    color: var(--bg);
+    border-color: var(--highlight);
+  }
+
+  .btn-start:hover::before {
+    transform: translateX(0);
+  }
+
+  .btn-arrow {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+  }
+
+  .btn-start:hover .btn-arrow {
+    transform: translateX(6px);
+  }
+
+  /* ── QUIZ SCREEN ── */
+  #quiz {
+    min-height: 100vh;
+    padding: 60px 0 100px;
+  }
+
+  .quiz-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+  }
+
+  .quiz-header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quiz-progress-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin: 0 24px;
+    position: relative;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--highlight);
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .dim-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .question-wrap {
+    padding-top: 100px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .question-wrap {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+  .question-wrap.exiting {
+    opacity: 0;
+    transform: translateX(-24px);
+    pointer-events: none;
+  }
+  .question-wrap.entering {
+    opacity: 0;
+    transform: translateX(24px);
+    transition: none;
+  }
+
+  .question-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+  }
+
+  .question-text {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-size: clamp(18px, 2.5vw, 24px);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--white);
+    margin-bottom: 48px;
+    letter-spacing: 0.02em;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(200,184,154,0.04);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .option:hover::before { opacity: 1; }
+  .option:hover { border-color: rgba(200,184,154,0.3); }
+
+  .option.selected {
+    border-color: var(--highlight);
+    background: rgba(200,184,154,0.06);
+  }
+
+  .option-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-dim);
+    min-width: 20px;
+    padding-top: 2px;
+    letter-spacing: 0.1em;
+  }
+
+  .option.selected .option-key {
+    color: var(--highlight);
+  }
+
+  .option-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .option.selected .option-text {
+    color: var(--white);
+  }
+
+  .scale-ends {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--accent-dim);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .scale-row {
+    display: flex;
+    gap: 10px;
+    justify-content: stretch;
+    margin-bottom: 8px;
+  }
+
+  .scale-option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 16px 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .scale-option:hover { border-color: rgba(200,184,154,0.3); }
+
+  .scale-option.selected {
+    border-color: var(--highlight);
+    background: rgba(200,184,154,0.06);
+  }
+
+  .scale-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent-dim);
+    transition: all 0.2s ease;
+  }
+
+  .scale-option.selected .scale-dot {
+    background: var(--highlight);
+    border-color: var(--highlight);
+  }
+
+  .scale-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: var(--accent-dim);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .scale-option.selected .scale-label {
+    color: var(--highlight);
+  }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-nav {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent-dim);
+    padding: 12px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .btn-nav:hover:not(:disabled) {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  .btn-nav:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+  }
+
+  .btn-next {
+    border-color: var(--highlight);
+    color: var(--highlight);
+  }
+
+  .btn-next:hover:not(:disabled) {
+    background: var(--highlight);
+    color: var(--bg);
+  }
+
+  /* ── RESULT CARD ── */
+  #result {
+    min-height: 100vh;
+    padding: 80px 0 48px;
+  }
+
+  .result-card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .result-card {
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid #3a342a;
+    border-radius: 14px;
+    background: var(--bg);
+    padding: 28px 24px 32px;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  .card-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--accent-dim);
+    margin-bottom: 32px;
+  }
+
+  .card-code {
+    font-family: 'Space Mono', monospace;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--highlight);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 28px;
+  }
+
+  .card-label-zh {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-weight: 300;
+    font-size: 36px;
+    color: var(--white);
+    text-align: center;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  .card-label-en {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent-dim);
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  .card-figure {
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    margin-top: 4px;
+  }
+  .card-figure img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 24px rgba(200,184,154,0.05));
+  }
+  .card-figure-placeholder {
+    width: 160px;
+    height: 160px;
+    border: 1px solid #2a2620;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-dim);
+    letter-spacing: 0.1em;
+    opacity: 0.4;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* Card dimension bars */
+  .dim-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 28px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .dim-row:last-child { margin-bottom: 0; }
+  .dim-label-l {
+    color: var(--accent-dim);
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+  .dim-label-r {
+    color: var(--accent-dim);
+    text-align: right;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+  .dim-label-l.active { color: var(--highlight); }
+  .dim-label-r.active { color: var(--highlight); }
+
+  .dim-bar {
+    position: relative;
+    height: 1px;
+    background: rgba(200,184,154,0.15);
+  }
+  .dim-bar-center {
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    width: 1px;
+    height: 7px;
+    background: rgba(200,184,154,0.4);
+  }
+  .dim-bar-fill {
+    position: absolute;
+    top: 0;
+    height: 1px;
+    background: var(--highlight);
+    transition: left 1.2s cubic-bezier(0.4,0,0.2,1), width 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+  .dim-bar-dot {
+    position: absolute;
+    top: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--highlight);
+    transform: translateX(-50%);
+    transition: left 1.2s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .card-desc {
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--accent-dim);
+    margin-top: 28px;
+    margin-bottom: 28px;
+  }
+
+  .dir-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .dir-tag {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 1px solid #3a342a;
+    color: var(--text);
+    padding: 12px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+  .dir-tag:hover { border-color: var(--accent-dim); color: var(--white); }
+  .dir-tag.active {
+    background: var(--highlight);
+    border-color: var(--highlight);
+    color: var(--bg);
+    font-weight: 400;
+  }
+
+  .dir-subtitle {
+    border-left: 2px solid var(--highlight);
+    padding: 12px 14px;
+    background: rgba(200,184,154,0.03);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text);
+    min-height: 44px;
+    transition: opacity 0.25s ease;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  /* Floating case: dual-card carousel */
+  .card-carousel-wrap { width: 100%; max-width: 420px; margin: 0 auto; }
+  .card-carousel-track-outer { overflow: hidden; }
+  .card-carousel-track {
+    display: flex;
+    align-items: flex-start;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+  .card-carousel-track .result-card { min-width: 100%; flex-shrink: 0; }
+  .card-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .card-carousel-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .card-carousel-dot.active { background: var(--highlight); transform: scale(1.3); }
+
+  /* Save-card toast */
+  .save-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--highlight);
+    color: var(--bg);
+    padding: 12px 22px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .save-toast.visible { opacity: 1; }
+
+  /* ── QR Section ── */
+  .qr-section {
+    margin-top: 64px;
+    padding: 48px 0 80px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+  .qr-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+  }
+  .qr-row {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+  }
+  .qr-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .qr-box {
+    width: 100px; height: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .qr-box::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 3px, var(--border) 3px, var(--border) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 3px, var(--border) 3px, var(--border) 4px);
+    opacity: 0.5;
+  }
+  .qr-box::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 2px solid var(--border);
+  }
+  .qr-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+  }
+
+  .btn-retry {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--accent-dim);
+    padding: 14px 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .btn-retry:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  .result-bottom-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+  }
+
+  .btn-save {
+    background: var(--highlight);
+    border: 1px solid var(--highlight);
+    color: var(--bg);
+    padding: 14px 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .btn-save:hover { background: transparent; color: var(--highlight); }
+
+  .btn-share {
+    background: transparent;
+    border: 1px solid var(--highlight);
+    color: var(--highlight);
+    padding: 14px 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .btn-share:hover { background: var(--highlight); color: var(--bg); }
+
+  .share-toast {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--highlight);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .share-toast.visible { opacity: 1; }
+
+  .floating-index {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    z-index: 50;
+  }
+
+
+  /* LOADING PAGE */
+  #loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 1500;
+  }
+  #loading.active { display: flex; }
+  #particleCanvas {
+    display: block;
+  }
+  .loading-tagline {
+    position: fixed;
+    bottom: 36px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--accent-dim);
+    opacity: 0;
+    animation: fadeInTag 1.2s ease 0.8s forwards;
+  }
+  @keyframes fadeInTag {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* FIXED UI ELEMENTS */
+  .fixed-logo {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    z-index: 1000;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  .fixed-logo img {
+    height: 36px;
+    width: auto;
+    filter: brightness(1.4) grayscale(1);
+    mix-blend-mode: normal;
+  }
+  .fixed-contact {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    z-index: 1000;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent-dim);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+  }
+  .fixed-contact:hover {
+    color: var(--highlight);
+    border-bottom-color: var(--highlight);
+  }
+  .fixed-footer {
+    position: fixed;
+    bottom: 16px;
+    right: 24px;
+    z-index: 1000;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--accent-dim);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  /* CONTACT PAGE */
+  .contact-page {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+  .contact-page.active {
+    display: flex;
+  }
+  .contact-back {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent-dim);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .contact-back:hover { color: var(--highlight); }
+  .contact-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  .contact-logo img {
+    height: 72px;
+    width: auto;
+    filter: brightness(1.4) grayscale(1);
+    opacity: 0.9;
+  }
+  .contact-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+  .contact-email-block {
+    text-align: center;
+  }
+  .contact-email-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--accent-dim);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .contact-email {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--highlight);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s, opacity 0.2s;
+  }
+  .contact-email:hover {
+    border-bottom-color: var(--highlight);
+    opacity: 0.75;
+  }
+
+  /* ── MOBILE / NARROW VIEWPORT ── */
+  @media (max-width: 600px) {
+    .container {
+      padding: 0 18px;
+    }
+
+    /* Intro screen — compact spacing */
+    #intro {
+      padding: 56px 0 48px;
+    }
+    .intro-label {
+      margin-bottom: 32px;
+    }
+    .intro-title.fdti-title {
+      margin-bottom: 10px;
+    }
+    .intro-subtitle-en {
+      margin-bottom: 24px;
+      letter-spacing: 0.18em;
+    }
+    .intro-subtitle-zh {
+      margin-bottom: 20px;
+    }
+    .intro-desc {
+      margin-bottom: 48px;
+    }
+    .intro-meta {
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+
+    /* Quiz header — fix the right-side overlap.
+       On mobile the dim-tag is hidden in the header (still shown in the
+       question label below as "Q01 — ABSTRACT — TANGIBLE"), so progress
+       text and the bar get the full width — but we reserve right padding
+       so the bar stops before CONTACT US in the top-right. */
+    .quiz-header {
+      padding: 14px 100px 14px 64px; /* L: clear logo, R: clear CONTACT US */
+    }
+    .quiz-header-inner .dim-tag {
+      display: none;
+    }
+    .quiz-header-inner .progress-bar-wrap {
+      margin: 0 0 0 14px;
+      height: 3px; /* slightly thicker so the gold fill is more visible */
+    }
+    .quiz-progress-text {
+      font-size: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Shrink the fixed logo so it doesn't dominate the small viewport */
+    .fixed-logo {
+      top: 14px;
+      left: 14px;
+    }
+    .fixed-logo img {
+      height: 24px;
+    }
+    /* Pull the contact link tighter to the edge */
+    .fixed-contact {
+      top: 18px;
+      right: 14px;
+      font-size: 9px;
+    }
+
+    .question-wrap {
+      padding-top: 80px;
+    }
+    .question-number {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      margin-bottom: 18px;
+      /* allow wrap on narrow screens since the dim tag is appended */
+      line-height: 1.5;
+    }
+    .question-text {
+      margin-bottom: 32px;
+    }
+    .option {
+      padding: 16px 18px;
+      gap: 12px;
+    }
+    .option-text {
+      font-size: 13.5px;
+    }
+
+    /* Scale row — keep on one line, but tighten */
+    .scale-row {
+      gap: 6px;
+    }
+    .scale-option {
+      padding: 12px 4px;
+      gap: 8px;
+    }
+    .scale-label {
+      font-size: 8px;
+      letter-spacing: 0.04em;
+    }
+    .scale-ends {
+      font-size: 8px;
+    }
+
+    .quiz-nav {
+      margin-top: 32px;
+      padding-top: 24px;
+    }
+    .btn-nav {
+      padding: 10px 16px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Result card — mobile */
+    #result { padding: 64px 0 36px; }
+    .result-card { padding: 20px 16px 24px; border-radius: 10px; }
+    .card-code { font-size: 40px; margin-bottom: 20px; }
+    .card-label-zh { font-size: 28px; }
+    .card-label-en { font-size: 10px; }
+    .card-figure { height: 200px; margin-bottom: 24px; }
+    .card-figure-placeholder { width: 120px; height: 120px; font-size: 22px; }
+    .card-desc { font-size: 12px; margin-top: 20px; margin-bottom: 20px; }
+    .dir-tag { padding: 10px 6px; font-size: 12px; }
+    .result-bottom-actions { gap: 8px; }
+    .btn-retry, .btn-save, .btn-share { padding: 12px 16px; font-size: 10px; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- FIXED LOGO -->
+<div class="fixed-logo">
+  <img src="images/logo.png" alt="YOLO Innovative Education">
+</div>
+
+<!-- FIXED CONTACT LINK -->
+<a class="fixed-contact" href="#" id="btnContact">CONTACT US</a>
+
+<!-- FIXED FOOTER -->
+<div class="fixed-footer">Supported by YOLO INNOVATIVE EDUCATION.</div>
+
+<!-- CONTACT PAGE -->
+<div class="contact-page" id="contactPage">
+  <div class="contact-back" id="btnContactBack">← BACK</div>
+  <div class="contact-inner">
+    <div class="contact-logo">
+      <img src="images/logo.png" alt="YOLO Innovative Education">
+    </div>
+    <div class="contact-divider"></div>
+    <div class="contact-email-block">
+      <div class="contact-email-label">Official Email / 官方邮箱</div>
+      <a class="contact-email" href="mailto:yolodesign@yolo-design.cn">yolodesign@yolo-design.cn</a>
+    </div>
+    <div class="contact-divider" style="margin:24px 0 20px;"></div>
+    <div class="contact-qr-row" style="display:flex;gap:32px;justify-content:center;align-items:flex-start;">
+      <div class="contact-qr-item" style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img src="images/qr-wechat-contact.png" alt="WeChat QR" style="width:120px;height:120px;object-fit:contain;">
+        <div style="font-size:11px;letter-spacing:.08em;opacity:.6;">WeChat / 微信</div>
+      </div>
+      <div class="contact-qr-item" style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <img src="images/qr-red-contact.png" alt="小红书 QR" style="width:120px;height:120px;object-fit:contain;">
+        <div style="font-size:11px;letter-spacing:.08em;opacity:.6;">小红书 / RED</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- LOADING PAGE -->
+<div class="screen" id="loading">
+  <canvas id="particleCanvas"></canvas>
+  <div class="loading-tagline">THE FUTURE IS COMING</div>
+</div>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="container">
+    <div class="intro-label">FDTI · 设计型格</div>
+    <h1 class="intro-title fdti-title">FDTI</h1>
+    <div class="intro-subtitle-en">Form Design Type Indicator · 设计型格</div>
+    <div class="intro-subtitle-zh">发现你的<span>设计型格</span></div>
+    <p class="intro-desc">这不是性格测试，而是一个关于思维方式与工作倾向的自我定位工具。基于四个维度的分析，测试你的「设计格」，帮助你在交互设计的跨学科版图中找到自己的位置。</p>
+    <div class="intro-meta">
+      <div class="meta-item">
+        <span class="meta-value">32</span>
+        <span class="meta-label">题目</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-value">4</span>
+        <span class="meta-label">维度</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-value">16</span>
+        <span class="meta-label">方向</span>
+      </div>
+    </div>
+    <button class="btn-start" id="btnStart">
+      开始测试 <span class="btn-arrow">→</span>
+    </button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <span class="quiz-progress-text" id="progressText">01 / 32</span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <span class="dim-tag" id="dimTag">ABSTRACT — TANGIBLE</span>
+    </div>
+  </div>
+  <div class="container">
+    <div class="question-wrap" id="questionWrap"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="container">
+    <div class="result-card-wrap">
+      <div id="resultCardArea"></div>
+    </div>
+
+    <div class="result-bottom-actions">
+      <button class="btn-retry" id="btnRetry">重新测试 ↺</button>
+      <button class="btn-save" id="btnSave">保存卡片 ↓</button>
+      <button class="btn-share" id="btnShare">分享测试 ↗</button>
+      <span class="share-toast" id="shareToast">链接已复制</span>
+    </div>
+    <div class="save-toast" id="saveToast">卡片已保存</div>
+
+    <!-- QR codes -->
+    <div class="qr-section">
+      <div class="qr-label">FOLLOW US / 关注我们</div>
+      <div class="qr-row">
+        <div class="qr-item">
+          <img class="qr-box" src="images/qr-wechat.png" alt="WeChat QR" />
+          <div class="qr-name">WeChat / 微信</div>
+        </div>
+        <div class="qr-item">
+          <img class="qr-box" src="images/qr-red.png" alt="小红书 QR" />
+          <div class="qr-name">小红书 / RED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="floating-index" id="floatingIndex"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const FIELDS = {
+  APIC: {
+    label_zh: '洞察者', label_en: 'The Insight Maker',
+    zh: '体验设计导向', en: 'User Experience Design',
+    desc: '你的思维偏向抽象与理论层面的洞察，同时关注当下用户的真实需求，擅长从个体体验出发定义问题，并倾向于从零创造新的体验框架。',
+    directions: ['体验设计', '整合设计', '概念设计']
+  },
+  APSC: {
+    label_zh: '织网者', label_en: 'The System Weaver',
+    zh: '服务设计导向', en: 'Service Design',
+    desc: '你习惯用抽象思维看待系统，关注当下多方利益相关者的关系，并有创造新服务形态的驱动力。你擅长在复杂关系网络中找到设计介入点。',
+    directions: ['服务设计', '设计管理', '整合设计']
+  },
+  APIO: {
+    label_zh: '精炼者', label_en: 'The Refiner',
+    zh: '整合设计导向', en: 'Integrated Design',
+    desc: '你善于在抽象层面思考，立足当下，聚焦个体体验，并以持续优化作为核心驱动。你的价值在于将理论洞察转化为体验的精准改进。',
+    directions: ['体验设计', '整合设计', '人机交互']
+  },
+  APSO: {
+    label_zh: '整合者', label_en: 'The Integrator',
+    zh: '设计管理导向', en: 'Design Management',
+    desc: '你以抽象的系统思维面对当下问题，擅长优化组织与流程，将设计价值转化为可衡量的成果。你是让设计在组织中真正发挥作用的人。',
+    directions: ['设计管理', '服务设计', '整合设计']
+  },
+  AFIC: {
+    label_zh: '幻想家', label_en: 'The Visionary',
+    zh: '概念设计导向', en: 'Conceptual Design',
+    desc: '你的思维天然偏向抽象与未来，关注个体体验的可能性，并有强烈的从零创造驱动力。你最擅长探索尚未存在的交互形式与体验叙事。',
+    directions: ['概念设计', '思辨设计', '未来设计']
+  },
+  AFSC: {
+    label_zh: '预言者', label_en: 'The Futurist',
+    zh: '思辨设计导向', en: 'Speculative Design',
+    desc: '你善于抽象思维，面向未来，关注系统性影响，并倾向于创造全新的可能性。你持续追问技术与社会发展的边界与后果，并以设计提案作为回应。',
+    directions: ['思辨设计', '战略设计', '未来设计']
+  },
+  AFIO: {
+    label_zh: '转译者', label_en: 'The Translator',
+    zh: '未来设计导向', en: 'Future Experience Design',
+    desc: '你结合抽象思维与未来视野，专注于个体体验在未来的演变，善于在已有框架内深化与优化。你的价值在于将前瞻洞察转化为可感知的体验改进。',
+    directions: ['未来设计', '概念设计', '人机交互']
+  },
+  AFSO: {
+    label_zh: '建构者', label_en: 'The Architect',
+    zh: '战略设计导向', en: 'Strategic Design',
+    desc: '你以抽象系统思维面向未来，擅长建立长期战略框架并持续优化演进路径。你是将设计思维与商业逻辑深度融合的战略型设计师。',
+    directions: ['战略设计', '设计管理', '未来设计']
+  },
+  TPIC: {
+    label_zh: '造物者', label_en: 'The Maker',
+    zh: '产品设计导向', en: 'Product Design',
+    desc: '你将具体的执行力与当下的用户需求结合，关注个体使用体验，热衷于动手创造新的产品形态。你最自然的状态是把想法做成真实可用的东西。',
+    directions: ['产品设计', '界面设计', '数字媒体']
+  },
+  TPSC: {
+    label_zh: '叙事者', label_en: 'The Storyteller',
+    zh: '数字媒体导向', en: 'Digital Media',
+    desc: '你善于将具体的媒介形式与当下的表达需求结合，关注系统性的叙事逻辑，并有创造新传播形态的驱动力。你是交互设计中最具表达张力的创作者。',
+    directions: ['数字媒体', '服务设计', '工业设计']
+  },
+  TPIO: {
+    label_zh: '工匠', label_en: 'The Craftsman',
+    zh: '界面设计导向', en: 'UI Design',
+    desc: '你的优势在于将具体的视觉与交互细节做到极致，立足当下用户习惯，专注个体操作体验，并善于在现有框架内持续打磨。你相信好设计藏在每一个细节里。',
+    directions: ['界面设计', '人机交互', '产品设计']
+  },
+  TPSO: {
+    label_zh: '塑形者', label_en: 'The Form Giver',
+    zh: '工业设计导向', en: 'Industrial Design',
+    desc: '你偏向具体可感知的设计语言，立足当下，关注系统性的产品形态与制造逻辑，并善于在约束中优化。你是让设计在物质世界中真正落地的人。',
+    directions: ['工业设计', '设计管理', '数字媒体']
+  },
+  TFIC: {
+    label_zh: '探险家', label_en: 'The Explorer',
+    zh: '创新工程导向', en: 'Innovative Interaction Design',
+    desc: '你具备具体的技术实现能力，面向未来的应用场景，专注个体交互体验，并有强烈的创造驱动力。你是技术可能性与人本设计之间的开路者。',
+    directions: ['创新工程', '人工智能', '概念设计']
+  },
+  TFSC: {
+    label_zh: '开拓者', label_en: 'The Pioneer',
+    zh: '人工智能导向', en: 'AI Experience Design',
+    desc: '你将具体的技术实现与未来场景构建结合，关注AI对系统性体验的影响，并倾向于创造全新的交互范式。你正站在人机关系重新定义的前沿。',
+    directions: ['人工智能', '创新工程', '计算机工程']
+  },
+  TFIO: {
+    label_zh: '调试者', label_en: 'The Calibrator',
+    zh: '人机交互导向', en: 'Human-Computer Interaction',
+    desc: '你结合具体的技术视角与未来导向，专注于人与系统之间的交互机制，并擅长在已有研究框架内持续深化与优化。你是HCI领域里最严谨的体验科学家。',
+    directions: ['人机交互', '人工智能', '计算机工程']
+  },
+  TFSO: {
+    label_zh: '工程师', label_en: 'The Engineer',
+    zh: '计算机工程导向', en: 'Information Architecture',
+    desc: '你以具体的技术实现能力面向未来，关注系统架构与信息结构的整体优化。你是构建支撑体验的底层逻辑的人，让复杂系统变得清晰可用。',
+    directions: ['计算机工程', '人机交互', '工业设计']
+  },
+};
+
+const DIMS = [
+  { id: 'AT', left: 'ABSTRACT', right: 'TANGIBLE', leftLabel: '抽象', rightLabel: '具体' },
+  { id: 'PF', left: 'PRESENT', right: 'FUTURE', leftLabel: '当下', rightLabel: '未来' },
+  { id: 'IS', left: 'INDIVIDUAL', right: 'SYSTEMIC', leftLabel: '个体', rightLabel: '系统' },
+  { id: 'CO', left: 'CREATIVE', right: 'OPTIMIZING', leftLabel: '创造', rightLabel: '优化' },
+];
+
+// Each question has: dim, text, options[], scores[]
+// scores[] maps each option index to its actual dimension score (0/33/66/99)
+const QUESTIONS = [
+  // DIM 0: Abstract(0) - Tangible(99)  ── 8 questions
+  { dim:0, type:'ab', text:'做完一个项目复盘，以下两种收获，哪个更让你满足？',
+    options:['突然想通了这类问题背后的某个规律，以后遇到类似情况会有不同的判断','积累了一套可以直接复用的流程和方法，下次做同类项目会快很多'] },
+  { dim:0, type:'scale', direction:1, text:'说服别人接受一个他本来不赞同的结论，我更喜欢从根本上跟他讲通这件事为什么是对的，而不是堆例子让他自己感受。' },
+  { dim:0, type:'ab', text:'同样是上手一个新工具，以下两种打开方式，哪个更像你？',
+    options:['先翻几个做得漂亮的案例，感受它能做到什么，再倒推怎么用','直接挑一个教程跟着做一遍，先做出点东西再说'] },
+  { dim:0, type:'scale', direction:1, text:'看到一个让我印象深刻的作品，我会忍不住想「它为什么能做到这个效果」，而不只是欣赏它。' },
+  { dim:0, type:'ab', text:'有人问你「这个设计好在哪」，你更倾向于哪种回答？',
+    options:['分析它为什么有效——它在解什么本质问题，为什么这是最合适的解法','指出它具体做对了哪几件事——这个细节、那个交互、这个节奏'] },
+  { dim:0, type:'ab', text:'第一次听到一首让你心头一动的歌，你最先想弄清楚的是什么？',
+    options:['它为什么能让你有这种感觉——是和弦走向、情绪弧线，还是歌词的某个节奏打到了你','它具体用了什么编曲手法——乐器、节奏、人声是怎么处理的'] },
+  { dim:0, type:'ab', text:'别人给你讲一个你不懂的概念，哪种解释方式更让你觉得真的懂了？',
+    options:['他告诉你这个概念背后的原理是什么，以及它和其他概念的关系','他给你举了一个非常具体的例子，让你能直接感受到它在说什么'] },
+  { dim:0, type:'scale', direction:1, text:'遇到一个我不熟悉的领域，我会先找一个框架或模型来理解它的整体结构，而不是直接找案例看。' },
+
+  // DIM 1: Present(0) - Future(99)  ── 8 questions
+  { dim:1, type:'ab', text:'以下两种深度报道，哪个更让你想一口气读完？',
+    options:['一篇把某个真实事件还原得极其精准的调查报道——时间线、细节、当事人的每一个决定都清晰可见','一篇把某个趋势推演得极其大胆的未来预测——逻辑严密，你以前从没这样想过这件事'] },
+  { dim:1, type:'scale', direction:-1, text:'一个领域越成熟、积累越深，我就越容易感到提不起劲——感觉能做的事都被做过了。' },
+  { dim:1, type:'ab', text:'同样是对一项新技术感兴趣，以下两种好奇心，哪个更像你？',
+    options:['「它现在到底是怎么运作的，背后的逻辑是什么」','「它将来会发展成什么，会改变哪些事」'] },
+  { dim:1, type:'scale', direction:-1, text:'在一个混沌、方向未定的早期阶段工作，我通常感到的是兴奋，而不是焦虑。' },
+  { dim:1, type:'ab', text:'毕业展上，以下两个同学的作品，你更羡慕哪个？',
+    options:['一个深入研究了某个真实社群三个月、把他们现在面临的处境还原得极其精准的设计方案','一个逻辑自洽的未来生活提案，评委说「这个方向十年后可能真的会发生」'] },
+  { dim:1, type:'ab', text:'以下两种工作机会，你更想要哪个？',
+    options:['深入一个已经有大量积累的成熟领域，把它的边界真正摸清楚，做出这个领域里最好的东西','进入一个刚刚出现的新领域，在混沌里找到自己的位置，定义这个领域的早期规则'] },
+  { dim:1, type:'scale', direction:1, text:'我更容易被一件「正在消失的东西」打动，而不是一件「正在出现的东西」。' },
+  { dim:1, type:'scale', direction:-1, text:'我认为这个世界是计算机模拟的程序。' },
+
+  // DIM 2: Individual(0) - Systemic(99)  ── 8 questions
+  { dim:2, type:'ab', text:'做用户研究，以下两种方式你更想选哪个？',
+    options:['跟踪一个人三周，记录他生活里每一个和这个问题相关的时刻','访谈三十个人，找到跨越个体差异的共同行为模式'] },
+  { dim:2, type:'scale', direction:1, text:'即使个体的情绪波动在群体层面趋于稳定，个体本身仍然值得被单独关注。' },
+  { dim:2, type:'ab', text:'你在看一部关于黑猩猩的自然纪录片，最把你按在沙发上的是哪种内容？',
+    options:['镜头跟着某一只黑猩猩，记录它的成长、它在族群里的处境、它某一天的具体选择','解说黑猩猩族群的权力结构、联盟机制、资源分配逻辑是怎么运作的'] },
+  { dim:2, type:'scale', direction:-1, text:'一件坏事发生了，我倾向于先找到是什么机制或结构导致了这个结果，而不是先追问是谁的决定造成的。' },
+  { dim:2, type:'ab', text:'你在追一部真实犯罪纪录片，最让你欲罢不能的部分是？',
+    options:['还原案发当天的每一个环节——那种「某个决定如果不同，结果就会完全不一样」的感觉','解析是什么样的社会机制或体制漏洞让这件事成为可能——换个人也可能走到同一个结局'] },
+  { dim:2, type:'ab', text:'团队里出现了一个反复触发、但大家说不清楚根源的摩擦点，你的第一直觉是？',
+    options:['找最直接受影响的那个人好好聊——弄清楚他看到的是什么，他的感受是什么','把当前的协作流程画出来——找到那个让摩擦几乎不可避免的结构节点'] },
+  { dim:2, type:'ab', text:'你刷到一条让你三刷的短视频，停下来之后你更想搞清楚的是什么？',
+    options:['为什么是它让你停下来——是哪个画面、哪句话、还是哪个节奏打到了你这个人','这个平台怎么判断要把这条推给你——它拿什么在给你这个账号建模'] },
+  { dim:2, type:'ab', text:'你在看一部关于宇宙的纪录片，以下两种内容哪个更让你着迷？',
+    options:['某一颗具体的星球——它的地貌、它的大气、它上面可能存在的某种具体的生命形态','引力如何塑造星系的结构、恒星如何诞生和死亡、宇宙整体的演化逻辑是什么'] },
+
+  // DIM 3: Creative(0) - Optimizing(99)  ── 8 questions
+  { dim:3, type:'ab', text:'以下两件设计作品，哪个更让你感到真正的兴奋？',
+    options:['第一代Macintosh电脑——粗糙、昂贵、有很多细节没做好，但它第一次让普通人觉得计算机是自己的东西','一把经过四十年持续改良的日本厨刀——每一代工匠都在前人的基础上把握感、重心、开刃角度推进一点点，现在已经接近无可挑剔'] },
+  { dim:3, type:'ab', text:'你接到一个设计委托，客户给了很详细的视觉规范和参考图。你内心第一反应是？',
+    options:['和客户重新讨论方向——我有自己认为更合适的想法，想先把这个谈清楚再动手','在客户给定的方向里开始工作——边做边看能把它推到哪里'] },
+  { dim:3, type:'scale', direction:1, text:'开始一件新事情的那一刻，是我整个过程里能量最高的时候。' },
+  { dim:3, type:'ab', text:'你刚拿到一个还没被广泛使用的新工具/新材料，第一反应是什么？',
+    options:['先研究它有什么以前的工具做不到的事，想用它做出一个全新的东西','先看用它能不能把我手上正在做的某件事做得更好——更精准、更稳、更省力'] },
+  { dim:3, type:'scale', direction:1, text:'一个领域有了公认的最佳实践之后，我对它的兴趣就会明显下降。' },
+  { dim:3, type:'ab', text:'看别人做的东西，以下两种反应，哪个更像你？',
+    options:['「这个方向有意思，但如果从另一个角度切入会不会更好——」然后开始在脑子里重新做一遍','「这里有个细节没处理好」，然后开始想如果是自己会怎么把这个地方改到位'] },
+  { dim:3, type:'ab', text:'你在玩一个开放世界游戏，地图探索了一半，下一步你最可能怎么走？',
+    options:['开一张新地图——刚踏进未知的那种感觉才是最上头的','把这张地图的每个角落翻干净，一根杂草都不放过，再说下一张'] },
+  { dim:3, type:'scale', direction:-1, text:'面对AI正在快速替代各行各业人类工作这件事，我认为现在最重要的是停下来想清楚它是否应该这样发展，而不是先想怎么适应它。' },
+];
+
+const THRESHOLD_LOW = 46;
+const THRESHOLD_HIGH = 54;
+const DIM_LABELS = ['AT','PF','IS','CO'];
+const DIM_NAMES = ['ABSTRACT — TANGIBLE','PRESENT — FUTURE','INDIVIDUAL — SYSTEMIC','CREATIVE — OPTIMIZING'];
+
+let answers = new Array(32).fill(null);
+let currentQ = 0;
+
+function startQuiz() {
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const total = QUESTIONS.length;
+  const pct = ((currentQ) / total * 100).toFixed(1);
+
+  document.getElementById('progressText').textContent =
+    String(currentQ + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('dimTag').textContent = DIM_NAMES[q.dim];
+  document.getElementById('floatingIndex').textContent = DIM_NAMES[q.dim];
+
+  let bodyHTML = '';
+
+  if (q.type === 'ab') {
+    const keys = ['A','B'];
+    const optionsHTML = q.options.map((opt, i) => `
+      <div class="option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectOption(${i})">
+        <span class="option-key">${keys[i]}</span>
+        <span class="option-text">${opt}</span>
+      </div>
+    `).join('');
+    bodyHTML = `<div class="options">${optionsHTML}</div>`;
+  } else {
+    const scaleLabels = ['强烈同意','同意','不确定','不同意','强烈不同意'];
+    const scaleHTML = scaleLabels.map((label, i) => `
+      <div class="scale-option ${answers[currentQ] === i ? 'selected' : ''}" onclick="selectOption(${i})">
+        <div class="scale-dot"></div>
+        <span class="scale-label">${label}</span>
+      </div>
+    `).join('');
+    bodyHTML = `
+      <div class="scale-ends">
+        <span>${q.direction === 1 ? '完全符合' : '完全不符合'}</span>
+        <span>${q.direction === 1 ? '完全不符合' : '完全符合'}</span>
+      </div>
+      <div class="scale-row">${scaleHTML}</div>
+    `;
+  }
+
+  document.getElementById('questionWrap').innerHTML = `
+    <div class="question-number">Q${String(currentQ+1).padStart(2,'0')} — ${DIM_NAMES[q.dim]}</div>
+    <div class="question-text">${q.text}</div>
+    ${bodyHTML}
+    <div class="quiz-nav">
+      <button class="btn-nav" onclick="prevQuestion()" ${currentQ === 0 ? 'disabled' : ''}>← 上一题</button>
+      <button class="btn-nav btn-next" onclick="nextQuestion()" ${answers[currentQ] === null ? 'disabled' : ''}>
+        ${currentQ === total - 1 ? '查看结果 →' : '下一题 →'}
+      </button>
+    </div>
+  `;
+}
+
+function selectOption(i) {
+  answers[currentQ] = i;
+  renderQuestion();
+}
+
+function getScore(q, answerIdx) {
+  if (q.type === 'ab') {
+    const raw = answerIdx === 0 ? 0 : 99;
+    return q.reverse ? 99 - raw : raw;
+  } else {
+    const scaleScores = [0, 25, 50, 74, 99];
+    const raw = scaleScores[answerIdx];
+    return q.direction === 1 ? raw : 99 - raw;
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) return;
+  const wrap = document.getElementById('questionWrap');
+  wrap.classList.add('exiting');
+  setTimeout(() => {
+    if (currentQ < QUESTIONS.length - 1) {
+      currentQ++;
+      renderQuestion();
+    } else {
+      showLoading();
+      return;
+    }
+    wrap.classList.remove('exiting');
+    wrap.classList.add('entering');
+    requestAnimationFrame(() => {
+      wrap.classList.remove('entering');
+    });
+  }, 180);
+}
+
+function showLoading() {
+  showScreen('loading');
+  initParticles();
+  setTimeout(() => {
+    stopParticles();
+    showResults();
+  }, 8000);
+}
+
+let particleRAF = null;
+function stopParticles() {
+  if (particleRAF) { cancelAnimationFrame(particleRAF); particleRAF = null; }
+}
+
+function initParticles() {
+  stopParticles();
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  const SIZE = Math.min(window.innerWidth, window.innerHeight) * 0.1;
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const cx = SIZE / 2, cy = SIZE / 2;
+  const R = SIZE * 0.42;
+  const N = 220;
+
+  // Each particle has a position on/inside sphere + slow random velocity
+  const particles = Array.from({length: N}, () => {
+    // Random point in sphere via rejection
+    let x, y, z;
+    do {
+      x = (Math.random() * 2 - 1);
+      y = (Math.random() * 2 - 1);
+      z = (Math.random() * 2 - 1);
+    } while (x*x + y*y + z*z > 1);
+    const r = Math.cbrt(Math.random()); // bias toward surface
+    const len = Math.sqrt(x*x + y*y + z*z) || 1;
+    x = x / len * r;
+    y = y / len * r;
+    z = z / len * r;
+    return {
+      x, y, z,
+      vx: (Math.random() - 0.5) * 0.008,
+      vy: (Math.random() - 0.5) * 0.008,
+      vz: (Math.random() - 0.5) * 0.008,
+      size: Math.random() * 1.4 + 0.4,
+      opacity: Math.random() * 0.5 + 0.3,
+    };
+  });
+
+  // Accent color from CSS var
+  const accent = [200, 184, 154]; // --highlight approx
+
+  function draw() {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+
+    particles.forEach(p => {
+      // Move
+      p.x += p.vx; p.y += p.vy; p.z += p.vz;
+      // Soft bounce: if outside sphere, reflect velocity component
+      const dist = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
+      if (dist > 1) {
+        p.x /= dist; p.y /= dist; p.z /= dist;
+        // Reflect velocity along normal
+        const dot = p.vx*p.x + p.vy*p.y + p.vz*p.z;
+        p.vx -= 2 * dot * p.x;
+        p.vy -= 2 * dot * p.y;
+        p.vz -= 2 * dot * p.z;
+      }
+      // Add tiny random drift
+      p.vx += (Math.random() - 0.5) * 0.0008;
+      p.vy += (Math.random() - 0.5) * 0.0008;
+      p.vz += (Math.random() - 0.5) * 0.0008;
+      // Clamp speed
+      const spd = Math.sqrt(p.vx*p.vx + p.vy*p.vy + p.vz*p.vz);
+      if (spd > 0.014) { const s = 0.014/spd; p.vx*=s; p.vy*=s; p.vz*=s; }
+
+      // Project to 2D — simple orthographic + z-depth for opacity/size
+      const px = cx + p.x * R;
+      const py = cy + p.y * R;
+      const depth = (p.z + 1) / 2; // 0=back, 1=front
+      const alpha = p.opacity;
+      const sz = p.size * (0.3 + depth * 1.2);
+
+      const glowAlpha = (0.35 + depth * 0.65);
+      const fillAlpha = (0.55 + depth * 0.45);
+      ctx.shadowBlur = sz * 6;
+      ctx.shadowColor = `rgba(${accent[0]},${accent[1]},${accent[2]},${(glowAlpha * 0.7).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(px, py, sz, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${accent[0]},${accent[1]},${accent[2]},${fillAlpha.toFixed(3)})`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    particleRAF = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function showResults() {
+  // ── Score calculation (unchanged) ──
+  const dimScores = [0,0,0,0];
+  const dimCounts = [0,0,0,0];
+  QUESTIONS.forEach((q, i) => {
+    if (answers[i] !== null) {
+      dimScores[q.dim] += getScore(q, answers[i]);
+      dimCounts[q.dim]++;
+    }
+  });
+  const dimPct = dimScores.map((s, i) => dimCounts[i] > 0 ? s / (dimCounts[i] * 99) * 100 : 50);
+
+  // ── Code determination ──
+  const THRESHOLD_LOW = 40, THRESHOLD_HIGH = 60;
+  const pairs = [['A','T'],['P','F'],['I','S'],['C','O']];
+  const inBand = dimPct.map(p => p >= THRESHOLD_LOW && p <= THRESHOLD_HIGH);
+  let floatingDim = -1;
+  if (inBand.some(Boolean)) {
+    let bestDist = Infinity;
+    inBand.forEach((isBand, i) => {
+      if (!isBand) return;
+      const dist = Math.abs(dimPct[i] - 50);
+      if (dist < bestDist) { bestDist = dist; floatingDim = i; }
+    });
+  }
+  const dimOptions = dimPct.map((p, i) => {
+    if (i === floatingDim) return pairs[i];
+    return [p < 50 ? pairs[i][0] : pairs[i][1]];
+  });
+  function combine(arrays) {
+    return arrays.reduce((acc, arr) => acc.flatMap(a => arr.map(b => a + b)), ['']);
+  }
+  const codes = combine(dimOptions);
+  const isFloat = codes.length > 1;
+
+  // ── Direction subtitles ──
+  const DIR_SUBTITLES = {
+    '体验设计': '从用户的真实场景出发，定义有意义的体验',
+    '服务设计': '编织多方关系，搭建端到端的服务系统',
+    '整合设计': '在洞察与执行之间搭桥，让设计真正落地',
+    '设计管理': '让设计的价值在组织中被看见、被衡量',
+    '概念设计': '从零定义全新的交互形式与体验叙事',
+    '思辨设计': '用设计提问，回应技术与社会的边界议题',
+    '未来设计': '探索尚未存在的交互形式，构建未来体验原型',
+    '战略设计': '在设计与商业之间，建立长期演进的框架',
+    '产品设计': '把想法做成真实可用、可被规模化的产品',
+    '数字媒体': '用媒介与叙事，创造新的表达与传播形态',
+    '界面设计': '在像素之间打磨细节，让操作流畅而精确',
+    '工业设计': '让物质世界中的形态承载设计的语言',
+    '创新工程': '在技术与体验之间开路，造出未被定义的可能',
+    '人工智能': '重新定义人与智能系统之间的交互范式',
+    '人机交互': '以严谨的研究方法，深化人与系统的关系',
+    '计算机工程': '构建支撑体验的底层逻辑与信息架构',
+  };
+
+  // ── Build dim rows HTML (new compact card style) ──
+  function buildDimRows() {
+    return DIMS.map((d, i) => {
+      const p = dimPct[i];
+      const isLeft = p < 50;
+      return `
+        <div class="dim-row">
+          <div class="dim-label-l ${isLeft ? 'active' : ''}">${d.leftLabel}</div>
+          <div class="dim-bar">
+            <div class="dim-bar-center"></div>
+            <div class="dim-bar-fill" data-pct="${p}" style="left:50%;width:0%;"></div>
+            <div class="dim-bar-dot" data-pct="${p}" style="left:50%;"></div>
+          </div>
+          <div class="dim-label-r ${!isLeft ? 'active' : ''}">${d.rightLabel}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Build single card HTML ──
+  function buildCard(code, floating) {
+    const f = FIELDS[code];
+    if (!f) return '';
+    const tags = f.directions.map((d, i) =>
+      `<button class="dir-tag ${i === 0 ? 'active' : ''}" data-idx="${i}">${d}</button>`
+    ).join('');
+    return `
+      <div class="result-card" id="card-${code}">
+        <div class="card-eyebrow">FDTI / 你的设计格${floating ? ' · 浮动方向' : ''}</div>
+        <div class="card-code">${code}</div>
+        <div class="card-label-zh">${f.label_zh}</div>
+        <div class="card-label-en">${f.label_en}</div>
+        <div class="card-figure">
+          <img src="characters/${code}.png" alt="${f.label_zh}"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="card-figure-placeholder" style="display:none">${code}</div>
+        </div>
+        <div class="section-label">Dimension Scores</div>
+        <div class="dim-rows-wrap">${buildDimRows()}</div>
+        <div class="card-desc">${f.desc}</div>
+        <div class="section-label">Suited Directions / 适合切入的方向</div>
+        <div class="dir-tags">${tags}</div>
+        <div class="dir-subtitle">${DIR_SUBTITLES[f.directions[0]] || ''}</div>
+        <div class="card-footer">
+          <span>FDTI / 你的设计格</span>
+          <span>YOLO INNOVATION</span>
+        </div>
+      </div>`;
+  }
+
+  // ── Wire direction tags for a card ──
+  function wireCard(code) {
+    const card = document.getElementById('card-' + code);
+    if (!card) return;
+    const f = FIELDS[code];
+    const tags = card.querySelectorAll('.dir-tag');
+    const subtitle = card.querySelector('.dir-subtitle');
+    tags.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tags.forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        subtitle.textContent = DIR_SUBTITLES[f.directions[parseInt(btn.dataset.idx)]] || '';
+      });
+    });
+  }
+
+  // ── Render card area ──
+  const areaEl = document.getElementById('resultCardArea');
+  let cardSlide = 0;
+
+  if (codes.length === 1) {
+    areaEl.innerHTML = buildCard(codes[0], false);
+    wireCard(codes[0]);
+  } else {
+    areaEl.innerHTML = `
+      <div class="card-carousel-wrap">
+        <div class="card-carousel-track-outer">
+          <div class="card-carousel-track" id="cardCarouselTrack">
+            ${codes.map((c, i) => buildCard(c, i > 0)).join('')}
+          </div>
+        </div>
+        <div class="card-carousel-dots" id="cardCarouselDots">
+          ${codes.map((_, i) =>
+            `<div class="card-carousel-dot ${i===0?'active':''}" data-i="${i}"></div>`
+          ).join('')}
+        </div>
+      </div>`;
+    codes.forEach(c => wireCard(c));
+    areaEl.querySelectorAll('.card-carousel-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        cardSlide = parseInt(dot.dataset.i);
+        document.getElementById('cardCarouselTrack').style.transform =
+          `translateX(-${cardSlide * 100}%)`;
+        areaEl.querySelectorAll('.card-carousel-dot').forEach((d, i) =>
+          d.classList.toggle('active', i === cardSlide));
+      });
+    });
+  }
+
+  // ── Animate dimension bars ──
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.querySelectorAll('.dim-bar-fill').forEach(el => {
+        const p = parseFloat(el.dataset.pct);
+        const isLeft = p < 50;
+        el.style.left = isLeft ? p + '%' : '50%';
+        el.style.width = Math.abs(p - 50) + '%';
+      });
+      document.querySelectorAll('.dim-bar-dot').forEach(el => {
+        el.style.left = parseFloat(el.dataset.pct) + '%';
+      });
+    }, 150);
+  });
+
+  // ── Save card as image ──
+  document.getElementById('btnSave').onclick = async () => {
+    // Find the visible card element
+    let cardEl;
+    if (codes.length === 1) {
+      cardEl = document.getElementById('card-' + codes[0]);
+    } else {
+      cardEl = document.getElementById('card-' + codes[cardSlide]);
+    }
+    if (!cardEl) return;
+
+    const saveToast = document.getElementById('saveToast');
+    function showSaveToast(msg) {
+      saveToast.textContent = msg;
+      saveToast.classList.add('visible');
+      setTimeout(() => saveToast.classList.remove('visible'), 2500);
+    }
+
+    // Use html2canvas if available, otherwise SVG fallback
+    if (typeof html2canvas !== 'undefined') {
+      try {
+        const canvas = await html2canvas(cardEl, {
+          backgroundColor: '#0a0a0a',
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+        canvas.toBlob(blob => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'FDTI-' + (codes.length === 1 ? codes[0] : codes[cardSlide]) + '.png';
+          link.click();
+          showSaveToast('卡片已保存');
+        }, 'image/png');
+      } catch(e) {
+        showSaveToast('保存失败，请截图保存');
+        console.error(e);
+      }
+    } else {
+      // SVG foreignObject fallback
+      try {
+        const w = cardEl.offsetWidth, h = cardEl.offsetHeight;
+        const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                 style="background:#0a0a0a;width:${w}px;height:${h}px;
+                 font-family:'Microsoft YaHei','PingFang SC',sans-serif;">
+              ${new XMLSerializer().serializeToString(cardEl)}
+            </div>
+          </foreignObject></svg>`;
+        const svgBlob = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.onload = () => {
+          const scale = 2;
+          const cv = document.createElement('canvas');
+          cv.width = w * scale; cv.height = h * scale;
+          const ctx = cv.getContext('2d');
+          ctx.fillStyle = '#0a0a0a';
+          ctx.fillRect(0, 0, cv.width, cv.height);
+          ctx.drawImage(img, 0, 0, cv.width, cv.height);
+          URL.revokeObjectURL(url);
+          cv.toBlob(blob => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'FDTI-' + (codes.length === 1 ? codes[0] : codes[cardSlide]) + '.png';
+            link.click();
+            showSaveToast('卡片已保存');
+          }, 'image/png');
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); showSaveToast('保存失败，请截图保存'); };
+        img.src = url;
+      } catch(e) {
+        showSaveToast('保存失败，请截图保存');
+      }
+    }
+  };
+
+  showScreen('result');
+  document.getElementById('floatingIndex').textContent = '';
+}
+
+function resetQuiz() {
+  answers = new Array(32).fill(null);
+  currentQ = 0;
+  showScreen('intro');
+  document.getElementById('floatingIndex').textContent = '';
+}
+
+function showContact() {
+  document.getElementById('contactPage').classList.add('active');
+}
+function hideContact() {
+  document.getElementById('contactPage').classList.remove('active');
+}
+
+// Bind buttons after all functions are defined
+document.getElementById('btnStart').addEventListener('click', startQuiz);
+document.getElementById('btnRetry').addEventListener('click', resetQuiz);
+document.getElementById('btnShare').addEventListener('click', function() {
+  const url = window.location.href.split('?')[0];
+  const toast = document.getElementById('shareToast');
+
+  function showToast() {
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 2000);
+  }
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(showToast).catch(() => fallbackCopy(url, showToast));
+  } else {
+    fallbackCopy(url, showToast);
+  }
+});
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); cb(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+document.getElementById('btnContact').addEventListener('click', function(e){ e.preventDefault(); showContact(); });
+document.getElementById('btnContactBack').addEventListener('click', function(){ hideContact(); });
+</script>
+</body>
+</html>
