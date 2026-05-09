@@ -664,12 +664,23 @@
     transition: opacity 0.25s ease;
   }
 
+  .card-rednote {
+    font-size: 10px;
+    letter-spacing: .06em;
+    color: rgba(255,255,255,.35);
+    text-align: center;
+    margin-top: 28px;
+    padding-top: 20px;
+    padding-bottom: 4px;
+    border-top: 1px solid var(--border);
+    font-family: inherit;
+  }
   .card-footer {
     display: flex;
     justify-content: space-between;
-    margin-top: 28px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
+    margin-top: 16px;
+    padding-top: 0;
+    border-top: none;
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     letter-spacing: 0.15em;
@@ -679,7 +690,37 @@
 
   /* Floating case: dual-card carousel */
   .card-carousel-wrap { width: 100%; max-width: 420px; margin: 0 auto; }
-  .card-carousel-track-outer { overflow: hidden; }
+  .card-carousel-track-outer { overflow: hidden; width: 100%; touch-action: pan-y; }
+  .card-carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .card-carousel-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--highlight);
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    cursor: pointer;
+    font-size: 26px;
+    font-family: Georgia, serif;
+    font-weight: 300;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .card-carousel-btn:hover:not(:disabled) {
+    background: var(--highlight);
+    color: var(--bg);
+    border-color: var(--highlight);
+  }
+  .card-carousel-btn:disabled { color: var(--border); cursor: default; }
   .card-carousel-track {
     display: flex;
     align-items: flex-start;
@@ -690,7 +731,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 16px;
+    align-items: center;
   }
   .card-carousel-dot {
     width: 5px; height: 5px;
@@ -1146,7 +1187,7 @@
 <a class="fixed-contact" href="#" id="btnContact">CONTACT US</a>
 
 <!-- FIXED FOOTER -->
-<div class="fixed-footer">Supported by YOLO INNOVATIVE EDUCATION.</div>
+<div class="fixed-footer">Supported by YOLO INNOVATION.</div>
 
 <!-- CONTACT PAGE -->
 <div class="contact-page" id="contactPage">
@@ -1189,7 +1230,7 @@
     <h1 class="intro-title fdti-title">FDTI</h1>
     <div class="intro-subtitle-en">Form Design Type Indicator · 设计型格</div>
     <div class="intro-subtitle-zh">发现你的<span>设计型格</span></div>
-    <p class="intro-desc">这不是性格测试，而是一个关于思维方式与工作倾向的自我定位工具。基于四个维度的分析，测试你的「设计格」，帮助你在交互设计的跨学科版图中找到自己的位置。</p>
+    <p class="intro-desc">这不是性格测试，而是一个关于思维方式与工作倾向的自我定位工具。基于四个维度的分析，测试你的「设计型格」，帮助你在交互设计的跨学科版图中找到自己的位置。</p>
     <div class="intro-meta">
       <div class="meta-item">
         <span class="meta-value">32</span>
@@ -1371,66 +1412,72 @@ const DIMS = [
 // Each question has: dim, text, options[], scores[]
 // scores[] maps each option index to its actual dimension score (0/33/66/99)
 const QUESTIONS = [
-  // DIM 0: Abstract(0) - Tangible(99)  ── 8 questions
-  { dim:0, type:'ab', text:'做完一个项目复盘，以下两种收获，哪个更让你满足？',
-    options:['突然想通了这类问题背后的某个规律，以后遇到类似情况会有不同的判断','积累了一套可以直接复用的流程和方法，下次做同类项目会快很多'] },
-  { dim:0, type:'scale', direction:1, text:'说服别人接受一个他本来不赞同的结论，我更喜欢从根本上跟他讲通这件事为什么是对的，而不是堆例子让他自己感受。' },
-  { dim:0, type:'ab', text:'同样是上手一个新工具，以下两种打开方式，哪个更像你？',
-    options:['先翻几个做得漂亮的案例，感受它能做到什么，再倒推怎么用','直接挑一个教程跟着做一遍，先做出点东西再说'] },
-  { dim:0, type:'scale', direction:1, text:'看到一个让我印象深刻的作品，我会忍不住想「它为什么能做到这个效果」，而不只是欣赏它。' },
-  { dim:0, type:'ab', text:'有人问你「这个设计好在哪」，你更倾向于哪种回答？',
-    options:['分析它为什么有效——它在解什么本质问题，为什么这是最合适的解法','指出它具体做对了哪几件事——这个细节、那个交互、这个节奏'] },
-  { dim:0, type:'ab', text:'第一次听到一首让你心头一动的歌，你最先想弄清楚的是什么？',
-    options:['它为什么能让你有这种感觉——是和弦走向、情绪弧线，还是歌词的某个节奏打到了你','它具体用了什么编曲手法——乐器、节奏、人声是怎么处理的'] },
-  { dim:0, type:'ab', text:'别人给你讲一个你不懂的概念，哪种解释方式更让你觉得真的懂了？',
-    options:['他告诉你这个概念背后的原理是什么，以及它和其他概念的关系','他给你举了一个非常具体的例子，让你能直接感受到它在说什么'] },
-  { dim:0, type:'scale', direction:1, text:'遇到一个我不熟悉的领域，我会先找一个框架或模型来理解它的整体结构，而不是直接找案例看。' },
+  // DIM 0: Abstract(0) — Tangible(99)  ── 8 questions
+  { dim:0, type:'ab', text:'做完一个项目后进行复盘时，哪种收获更让你感到满足？',
+    options:['突然想通了这类问题背后的规律，以后遇到类似情况可以举一反三','总结了一套能直接复用的流程和方法，下次做一样的项目时可以直接套用'] },
+  { dim:0, type:'scale', direction:1, text:'你常常发现，看起来毫不相关的两件事，其实道理是一样的。' },
+  { dim:0, type:'ab', text:'使用一个新工具时，你的第一步习惯怎么做？',
+    options:['先看案例，感受它能做什么，再想怎么实现','直接跟着教程学着做一遍，做出点东西再说'] },
+  { dim:0, type:'scale', direction:-1, text:'你对数字、名字、型号这些信息非常敏感，记得特别快、特别牢。' },
+  { dim:0, type:'ab', text:'有人问你「这个设计好在哪」，你更倾向于如何回答？',
+    options:['解释设计背后的逻辑——为什么这个方案是对的，它解决了什么本质问题','指出设计具体的优点——外观细节、交互手段、用户友好等特点'] },
+  { dim:0, type:'ab', text:'听完一场很有启发的演讲后，两周过去你最可能还记得住什么？',
+    options:['演讲中最核心总结的道理和逻辑','演讲中描述的故事剧情、人物和细节'] },
+  { dim:0, type:'ab', text:'别人给你讲一个你不懂的概念，哪种解释方式让你更能接受？',
+    options:['先讲清楚原理，还有这个概念和其他知识的关联','先举一个具体的例子，让你能一下理解这个概念'] },
+  { dim:0, type:'scale', direction:1, text:'初次进入一个不熟悉的领域，你会先梳理框架理解整体结构，而不是先根据成果去感受标准。' },
 
-  // DIM 1: Present(0) - Future(99)  ── 8 questions
-  { dim:1, type:'ab', text:'以下两种深度报道，哪个更让你想一口气读完？',
-    options:['一篇把某个真实事件还原得极其精准的调查报道——时间线、细节、当事人的每一个决定都清晰可见','一篇把某个趋势推演得极其大胆的未来预测——逻辑严密，你以前从没这样想过这件事'] },
-  { dim:1, type:'scale', direction:-1, text:'一个领域越成熟、积累越深，我就越容易感到提不起劲——感觉能做的事都被做过了。' },
-  { dim:1, type:'ab', text:'同样是对一项新技术感兴趣，以下两种好奇心，哪个更像你？',
-    options:['「它现在到底是怎么运作的，背后的逻辑是什么」','「它将来会发展成什么，会改变哪些事」'] },
-  { dim:1, type:'scale', direction:-1, text:'在一个混沌、方向未定的早期阶段工作，我通常感到的是兴奋，而不是焦虑。' },
-  { dim:1, type:'ab', text:'毕业展上，以下两个同学的作品，你更羡慕哪个？',
-    options:['一个深入研究了某个真实社群三个月、把他们现在面临的处境还原得极其精准的设计方案','一个逻辑自洽的未来生活提案，评委说「这个方向十年后可能真的会发生」'] },
-  { dim:1, type:'ab', text:'以下两种工作机会，你更想要哪个？',
-    options:['深入一个已经有大量积累的成熟领域，把它的边界真正摸清楚，做出这个领域里最好的东西','进入一个刚刚出现的新领域，在混沌里找到自己的位置，定义这个领域的早期规则'] },
-  { dim:1, type:'scale', direction:1, text:'我更容易被一件「正在消失的东西」打动，而不是一件「正在出现的东西」。' },
-  { dim:1, type:'scale', direction:-1, text:'我认为这个世界是计算机模拟的程序。' },
+  // DIM 1: Present(0) — Future(99)  ── 8 questions
+  { dim:1, type:'ab', text:'你更想一口气读完哪种文章？',
+    options:['真实事件的描述——时间线、剧情细节、人物的选择都十分清楚','未来发展的猜想——思考缜密、逻辑新颖、想法特别'] },
+  { dim:1, type:'scale', direction:-1, text:'一个领域发展的越成熟、行业的积累越深，你就越容易没兴趣，感觉能做的都被别人做完了。' },
+  { dim:1, type:'ab', text:'对一项新技术产生兴趣时，你更好奇哪一个？',
+    options:['它现在是怎么运作的，背后是什么原理','它未来会发展成什么样，带来什么影响'] },
+  { dim:1, type:'scale', direction:-1, text:'在工作的初期阶段，方向未定时，你通常会感到兴奋，而不是焦虑。' },
+  { dim:1, type:'ab', text:'毕业作品展上，你更羡慕哪个同学的作品？',
+    options:['深入调研真实的人群，精准还原他们当下的生活，给出极其精准的设计方案','有前瞻性且逻辑自洽的未来设计，大家都说这个方向十年后可能真的会发生'] },
+  { dim:1, type:'ab', text:'以下的工作机会，你更想要哪个？',
+    options:['深耕成熟老领域，把边界摸透，做到顶尖','进入刚兴起的新领域，在混乱里定义新规则'] },
+  { dim:1, type:'scale', direction:1, text:'你更容易被正在消失的旧事物打动，而不是刚出现的新事物。' },
+  { dim:1, type:'scale', direction:-1, text:'你认为这个世界可能像计算机程序一样是被设定出来的。' },
 
-  // DIM 2: Individual(0) - Systemic(99)  ── 8 questions
-  { dim:2, type:'ab', text:'做用户研究，以下两种方式你更想选哪个？',
-    options:['跟踪一个人三周，记录他生活里每一个和这个问题相关的时刻','访谈三十个人，找到跨越个体差异的共同行为模式'] },
-  { dim:2, type:'scale', direction:1, text:'即使个体的情绪波动在群体层面趋于稳定，个体本身仍然值得被单独关注。' },
-  { dim:2, type:'ab', text:'你在看一部关于黑猩猩的自然纪录片，最把你按在沙发上的是哪种内容？',
-    options:['镜头跟着某一只黑猩猩，记录它的成长、它在族群里的处境、它某一天的具体选择','解说黑猩猩族群的权力结构、联盟机制、资源分配逻辑是怎么运作的'] },
-  { dim:2, type:'scale', direction:-1, text:'一件坏事发生了，我倾向于先找到是什么机制或结构导致了这个结果，而不是先追问是谁的决定造成的。' },
-  { dim:2, type:'ab', text:'你在追一部真实犯罪纪录片，最让你欲罢不能的部分是？',
-    options:['还原案发当天的每一个环节——那种「某个决定如果不同，结果就会完全不一样」的感觉','解析是什么样的社会机制或体制漏洞让这件事成为可能——换个人也可能走到同一个结局'] },
-  { dim:2, type:'ab', text:'团队里出现了一个反复触发、但大家说不清楚根源的摩擦点，你的第一直觉是？',
-    options:['找最直接受影响的那个人好好聊——弄清楚他看到的是什么，他的感受是什么','把当前的协作流程画出来——找到那个让摩擦几乎不可避免的结构节点'] },
-  { dim:2, type:'ab', text:'你刷到一条让你三刷的短视频，停下来之后你更想搞清楚的是什么？',
-    options:['为什么是它让你停下来——是哪个画面、哪句话、还是哪个节奏打到了你这个人','这个平台怎么判断要把这条推给你——它拿什么在给你这个账号建模'] },
-  { dim:2, type:'ab', text:'你在看一部关于宇宙的纪录片，以下两种内容哪个更让你着迷？',
-    options:['某一颗具体的星球——它的地貌、它的大气、它上面可能存在的某种具体的生命形态','引力如何塑造星系的结构、恒星如何诞生和死亡、宇宙整体的演化逻辑是什么'] },
+  // DIM 2: Individual(0) — Systemic(99)  ── 8 questions
+  { dim:2, type:'ab', text:'做用户研究，你更喜欢哪种方式？',
+    options:['跟踪一个人好几周，记录他相关的所有生活细节','访谈几十个人，找到所有人共有的行为习惯'] },
+  { dim:2, type:'scale', direction:1, text:'就算群体情绪趋于稳定，每一个人的个体感受仍然值得被关注。' },
+  { dim:2, type:'ab', text:'广场上总有人乱扔垃圾，现在由你负责解决的话，你会更倾向怎么做？',
+    options:['组织社区活动宣传爱护环境，让大家有意识不乱扔','增加垃圾桶的数量，合理安排垃圾桶的位置'] },
+  { dim:2, type:'scale', direction:-1, text:'出问题后，你倾向于先找造成问题的机制和原因，而不是先找责任在谁。' },
+  { dim:2, type:'ab', text:'对历史的理解，你更认同哪种看法？',
+    options:['历史是由人为因素改变的','历史是由环境推动改变的'] },
+  { dim:2, type:'scale', direction:1, text:'进入一场陌生的聚会，你更喜欢找有趣的人聊天，而不是观察全场。' },
+  { dim:2, type:'scale', direction:1, text:'遇到一个很极端的用户反馈，你会先认真了解这个人，而不是先判断他有没有代表性。' },
+  { dim:2, type:'ab', text:'看到一部关于宇宙的纪录片，哪种内容更让你着迷？',
+    options:['一颗星球的地貌、大气、以及可能存在的生命形态','引力构造星系、恒星的诞生和死亡、宇宙整体的演化规律'] },
 
-  // DIM 3: Creative(0) - Optimizing(99)  ── 8 questions
-  { dim:3, type:'ab', text:'以下两件设计作品，哪个更让你感到真正的兴奋？',
-    options:['第一代Macintosh电脑——粗糙、昂贵、有很多细节没做好，但它第一次让普通人觉得计算机是自己的东西','一把经过四十年持续改良的日本厨刀——每一代工匠都在前人的基础上把握感、重心、开刃角度推进一点点，现在已经接近无可挑剔'] },
-  { dim:3, type:'ab', text:'你接到一个设计委托，客户给了很详细的视觉规范和参考图。你内心第一反应是？',
-    options:['和客户重新讨论方向——我有自己认为更合适的想法，想先把这个谈清楚再动手','在客户给定的方向里开始工作——边做边看能把它推到哪里'] },
-  { dim:3, type:'scale', direction:1, text:'开始一件新事情的那一刻，是我整个过程里能量最高的时候。' },
-  { dim:3, type:'ab', text:'你刚拿到一个还没被广泛使用的新工具/新材料，第一反应是什么？',
-    options:['先研究它有什么以前的工具做不到的事，想用它做出一个全新的东西','先看用它能不能把我手上正在做的某件事做得更好——更精准、更稳、更省力'] },
-  { dim:3, type:'scale', direction:1, text:'一个领域有了公认的最佳实践之后，我对它的兴趣就会明显下降。' },
-  { dim:3, type:'ab', text:'看别人做的东西，以下两种反应，哪个更像你？',
-    options:['「这个方向有意思，但如果从另一个角度切入会不会更好——」然后开始在脑子里重新做一遍','「这里有个细节没处理好」，然后开始想如果是自己会怎么把这个地方改到位'] },
-  { dim:3, type:'ab', text:'你在玩一个开放世界游戏，地图探索了一半，下一步你最可能怎么走？',
-    options:['开一张新地图——刚踏进未知的那种感觉才是最上头的','把这张地图的每个角落翻干净，一根杂草都不放过，再说下一张'] },
-  { dim:3, type:'scale', direction:-1, text:'面对AI正在快速替代各行各业人类工作这件事，我认为现在最重要的是停下来想清楚它是否应该这样发展，而不是先想怎么适应它。' },
+  // DIM 3: Creative(0) — Optimizing(99)  ── 8 questions
+  { dim:3, type:'ab', text:'以下两件设计作品，哪件更让你感到真正的兴奋？',
+    options:['第一代苹果电脑，虽然昂贵且细节粗糙，但它第一次让人觉得计算机可以属于个人','经过四十年持续改良的日本厨刀，几乎没有很大改变，但现在已经接近无可挑剔了'] },
+  { dim:3, type:'ab', text:'你接到一个设计委托，客户给了详细的规范和参考要求，你的第一反应是？',
+    options:['我有更好的想法，想要和客户重新讨论方向','顺着客户的框架和要求，边做边优化'] },
+  { dim:3, type:'scale', direction:1, text:'开始做一件全新的事，是你状态最好、劲头最足的时候。' },
+  { dim:3, type:'ab', text:'做一个关于城市交通的项目，你更倾向于：',
+    options:['研究无人驾驶技术，推动城市道路交通改革','想办法解决现在堵车、道路规划不好的问题'] },
+  { dim:3, type:'scale', direction:1, text:'一个领域有了公认的最佳做法后，你的兴趣就会明显下降。' },
+  { dim:3, type:'ab', text:'批评一个作品时，你更像哪种？',
+    options:['这个作品的大方向和逻辑有问题','这个作品最终呈现的效果不好'] },
+  { dim:3, type:'ab', text:'玩开放世界游戏，完成所有任务后，地图还没探索完，你会怎么做？',
+    options:['直接进入下一张新地图开始探索，刚踏进未知的那种感觉最上头','把这张地图的每个角落翻干净，一根杂草都不放过，再去下一张'] },
+  { dim:3, type:'scale', direction:1, text:'面对AI代替人类大量工作，你觉得这是科技发展的必然结果，没必要去阻拦也不用刻意放缓。' },
 ];
+
+// Shuffle questions so dimension order is not revealed
+(function shuffleQuestions() {
+  for (let i = QUESTIONS.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [QUESTIONS[i], QUESTIONS[j]] = [QUESTIONS[j], QUESTIONS[i]];
+  }
+})();
 
 const THRESHOLD_LOW = 46;
 const THRESHOLD_HIGH = 54;
@@ -1723,7 +1770,7 @@ function showResults() {
     ).join('');
     return `
       <div class="result-card" id="card-${code}">
-        <div class="card-eyebrow">FDTI / 你的设计格${floating ? ' · 浮动方向' : ''}</div>
+        <div class="card-eyebrow">FDTI / 你的设计型格${floating ? ' · 浮动方向' : ''}</div>
         <div class="card-code">${code}</div>
         <div class="card-label-zh">${f.label_zh}</div>
         <div class="card-label-en">${f.label_en}</div>
@@ -1738,8 +1785,9 @@ function showResults() {
         <div class="section-label">Suited Directions / 适合切入的方向</div>
         <div class="dir-tags">${tags}</div>
         <div class="dir-subtitle">${DIR_SUBTITLES[f.directions[0]] || ''}</div>
+        <div class="card-rednote">小红书搜索 YOLO INNOVATION，获取更多信息。</div>
         <div class="card-footer">
-          <span>FDTI / 你的设计格</span>
+          <span>FDTI / 你的设计型格</span>
           <span>YOLO INNOVATION</span>
         </div>
       </div>`;
@@ -1771,27 +1819,68 @@ function showResults() {
   } else {
     areaEl.innerHTML = `
       <div class="card-carousel-wrap">
-        <div class="card-carousel-track-outer">
+        <div class="card-carousel-track-outer" id="cardTrackOuter">
           <div class="card-carousel-track" id="cardCarouselTrack">
             ${codes.map((c, i) => buildCard(c, i > 0)).join('')}
           </div>
         </div>
-        <div class="card-carousel-dots" id="cardCarouselDots">
-          ${codes.map((_, i) =>
-            `<div class="card-carousel-dot ${i===0?'active':''}" data-i="${i}"></div>`
-          ).join('')}
+        <div class="card-carousel-controls">
+          <button class="card-carousel-btn" id="cardPrev" disabled>&#8249;</button>
+          <div class="card-carousel-dots" id="cardCarouselDots">
+            ${codes.map((_, i) =>
+              `<div class="card-carousel-dot ${i===0?'active':''}" data-i="${i}"></div>`
+            ).join('')}
+          </div>
+          <button class="card-carousel-btn" id="cardNext">&#8250;</button>
         </div>
       </div>`;
     codes.forEach(c => wireCard(c));
+
+    function goCardSlide(idx) {
+      cardSlide = Math.max(0, Math.min(idx, codes.length - 1));
+      document.getElementById('cardCarouselTrack').style.transform =
+        `translateX(-${cardSlide * 100}%)`;
+      areaEl.querySelectorAll('.card-carousel-dot').forEach((d, i) =>
+        d.classList.toggle('active', i === cardSlide));
+      document.getElementById('cardPrev').disabled = cardSlide === 0;
+      document.getElementById('cardNext').disabled = cardSlide === codes.length - 1;
+    }
+
+    document.getElementById('cardPrev').onclick = () => goCardSlide(cardSlide - 1);
+    document.getElementById('cardNext').onclick = () => goCardSlide(cardSlide + 1);
+
     areaEl.querySelectorAll('.card-carousel-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        cardSlide = parseInt(dot.dataset.i);
-        document.getElementById('cardCarouselTrack').style.transform =
-          `translateX(-${cardSlide * 100}%)`;
-        areaEl.querySelectorAll('.card-carousel-dot').forEach((d, i) =>
-          d.classList.toggle('active', i === cardSlide));
-      });
+      dot.addEventListener('click', () => goCardSlide(parseInt(dot.dataset.i)));
     });
+
+    // Touch/swipe support
+    const trackOuter = document.getElementById('cardTrackOuter');
+    let tcStartX = null, tcStartY = null, tcActive = false, tcClaimed = false;
+    const EDGE = 40;
+    trackOuter.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      if (t.clientX <= EDGE || t.clientX >= window.innerWidth - EDGE) return;
+      tcStartX = t.clientX; tcStartY = t.clientY; tcActive = true; tcClaimed = false;
+    }, { passive: true });
+    trackOuter.addEventListener('touchmove', e => {
+      if (!tcActive || tcStartX === null) return;
+      const t = e.touches[0];
+      const dx = t.clientX - tcStartX, dy = t.clientY - tcStartY;
+      if (!tcClaimed) {
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          if (Math.abs(dx) > Math.abs(dy)) { tcClaimed = true; }
+          else { tcActive = false; return; }
+        }
+      }
+      if (tcClaimed) e.preventDefault();
+    }, { passive: false });
+    trackOuter.addEventListener('touchend', e => {
+      if (!tcActive || tcStartX === null) { tcStartX = null; return; }
+      const dx = (e.changedTouches[0]?.clientX || tcStartX) - tcStartX;
+      if (dx < -40 && cardSlide < codes.length - 1) goCardSlide(cardSlide + 1);
+      else if (dx > 40 && cardSlide > 0) goCardSlide(cardSlide - 1);
+      tcStartX = null; tcActive = false; tcClaimed = false;
+    }, { passive: true });
   }
 
   // ── Animate dimension bars ──
@@ -1811,79 +1900,71 @@ function showResults() {
 
   // ── Save card as image ──
   document.getElementById('btnSave').onclick = async () => {
-    // Find the visible card element
-    let cardEl;
-    if (codes.length === 1) {
-      cardEl = document.getElementById('card-' + codes[0]);
-    } else {
-      cardEl = document.getElementById('card-' + codes[cardSlide]);
-    }
-    if (!cardEl) return;
-
     const saveToast = document.getElementById('saveToast');
     function showSaveToast(msg) {
       saveToast.textContent = msg;
       saveToast.classList.add('visible');
-      setTimeout(() => saveToast.classList.remove('visible'), 2500);
+      setTimeout(() => saveToast.classList.remove('visible'), 2800);
     }
 
-    // Use html2canvas if available, otherwise SVG fallback
+    // Collect card elements to render
+    const cardEls = codes.length === 1
+      ? [document.getElementById('card-' + codes[0])]
+      : codes.map(c => document.getElementById('card-' + c)).filter(Boolean);
+
+    if (!cardEls.length) return;
+
     if (typeof html2canvas !== 'undefined') {
       try {
-        const canvas = await html2canvas(cardEl, {
-          backgroundColor: '#0a0a0a',
-          scale: 2,
-          useCORS: true,
-          logging: false,
-        });
-        canvas.toBlob(blob => {
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = 'FDTI-' + (codes.length === 1 ? codes[0] : codes[cardSlide]) + '.png';
-          link.click();
-          showSaveToast('卡片已保存');
-        }, 'image/png');
+        // Temporarily hide dir-subtitle (not needed in saved image)
+        const subtitleEls = document.querySelectorAll('.dir-subtitle');
+        subtitleEls.forEach(el => { el.dataset.origDisplay = el.style.display; el.style.display = 'none'; });
+        // Render all cards
+        const canvases = await Promise.all(cardEls.map(el =>
+          html2canvas(el, { backgroundColor: '#0a0a0a', scale: 2, useCORS: true, logging: false })
+        ));
+
+        if (canvases.length === 1) {
+          // Single: save directly
+          subtitleEls.forEach(el => { el.style.display = el.dataset.origDisplay || ''; });
+          canvases[0].toBlob(blob => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `FDTI-${codes[0]}.png`;
+            link.click();
+            showSaveToast('卡片已保存');
+          }, 'image/png');
+        } else {
+          // Two cards: stitch vertically with a 24px gap
+          const GAP = 24;
+          const W = canvases[0].width;
+          const H = canvases.reduce((s, cv) => s + cv.height, 0) + GAP;
+          const merged = document.createElement('canvas');
+          merged.width = W; merged.height = H;
+          const ctx = merged.getContext('2d');
+          ctx.fillStyle = '#0a0a0a';
+          ctx.fillRect(0, 0, W, H);
+          let y = 0;
+          for (const cv of canvases) {
+            ctx.drawImage(cv, 0, y);
+            y += cv.height + GAP;
+          }
+          subtitleEls.forEach(el => { el.style.display = el.dataset.origDisplay || ''; });
+          merged.toBlob(blob => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `FDTI-${codes.join('-')}.png`;
+            link.click();
+            showSaveToast('两张卡片已合并保存');
+          }, 'image/png');
+        }
       } catch(e) {
+        if (typeof subtitleEls !== 'undefined') subtitleEls.forEach(el => { el.style.display = el.dataset.origDisplay || ''; });
         showSaveToast('保存失败，请截图保存');
         console.error(e);
       }
     } else {
-      // SVG foreignObject fallback
-      try {
-        const w = cardEl.offsetWidth, h = cardEl.offsetHeight;
-        const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-          <foreignObject width="100%" height="100%">
-            <div xmlns="http://www.w3.org/1999/xhtml"
-                 style="background:#0a0a0a;width:${w}px;height:${h}px;
-                 font-family:'Microsoft YaHei','PingFang SC',sans-serif;">
-              ${new XMLSerializer().serializeToString(cardEl)}
-            </div>
-          </foreignObject></svg>`;
-        const svgBlob = new Blob([svgStr], {type:'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(svgBlob);
-        const img = new Image();
-        img.onload = () => {
-          const scale = 2;
-          const cv = document.createElement('canvas');
-          cv.width = w * scale; cv.height = h * scale;
-          const ctx = cv.getContext('2d');
-          ctx.fillStyle = '#0a0a0a';
-          ctx.fillRect(0, 0, cv.width, cv.height);
-          ctx.drawImage(img, 0, 0, cv.width, cv.height);
-          URL.revokeObjectURL(url);
-          cv.toBlob(blob => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'FDTI-' + (codes.length === 1 ? codes[0] : codes[cardSlide]) + '.png';
-            link.click();
-            showSaveToast('卡片已保存');
-          }, 'image/png');
-        };
-        img.onerror = () => { URL.revokeObjectURL(url); showSaveToast('保存失败，请截图保存'); };
-        img.src = url;
-      } catch(e) {
-        showSaveToast('保存失败，请截图保存');
-      }
+      showSaveToast('请安装现代浏览器以使用保存功能');
     }
   };
 
@@ -1936,6 +2017,29 @@ function fallbackCopy(text, cb) {
 }
 document.getElementById('btnContact').addEventListener('click', function(e){ e.preventDefault(); showContact(); });
 document.getElementById('btnContactBack').addEventListener('click', function(){ hideContact(); });
+
+// ── DEV PREVIEW: ?preview in URL jumps straight to results ──
+// ?preview        → single clear result (all left-pole answers)
+// ?preview=float  → two-card floating result (dim 0 straddles 50%)
+(function() {
+  if (!location.search.includes('preview')) return;
+  const mode = new URLSearchParams(location.search).get('preview') || '';
+  if (mode === 'float') {
+    // Produce a floating result: dim 0 sits near 50%, others lean left
+    const dimCounts = [0, 0, 0, 0];
+    answers = QUESTIONS.map((q) => {
+      if (q.dim !== 0) return 0;          // dims 1-3: all left-pole (clear result)
+      // dim 0: alternate AB answers to land near 50%
+      const idx = dimCounts[0]++;
+      if (q.type === 'scale') return 2;   // midpoint scale
+      return idx % 2;                     // alternate 0 / 1 for AB
+    });
+  } else {
+    // Single clear result: all left-pole
+    answers = QUESTIONS.map(q => 0);
+  }
+  document.addEventListener('DOMContentLoaded', () => showResults());
+})();
 </script>
 </body>
 </html>
